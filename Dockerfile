@@ -9,7 +9,7 @@ WORKDIR /app
 
 # Installing dependencies
 COPY ./package*.json ./
-RUN npm install --include=dev
+RUN npm install --include=dev --legacy-peer-deps
 
 # Copying all the files in our project
 COPY . .
