@@ -9,7 +9,7 @@ WORKDIR /app
 
 # Installing dependencies
 COPY ./package*.json ./
-RUN npm install --include=dev --force
+RUN npm install --include=dev
 
 # Copying all the files in our project
 COPY . .
