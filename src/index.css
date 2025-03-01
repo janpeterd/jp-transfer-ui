@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: 27.29 100% 50%;
+  --secondary: 236.57 52.24% 13.14%;
+  --border: var(--secondary);
+  --input: var(--secondary);
+  --destructive: 0 100% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --radius: 0.5rem;
+  --popover: 0 0% 13.14%;
+  --popover-foreground: 100 0% 100%;
+  --success: 142 55% 40%;
+  --success-bg: 142 55% 90%;
+  --danger: 0 78% 62%;
+  --normal-bg: 0 78% 62%;
+  --danger-light: 0 78% 90%;
+  --background: 0 0 0;
+  --muted-foreground: 0 0% 75% / 0.75;
+}
+
+@layer base {
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  color: white;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: 'Roboto Condensed', sans-serif;
+}

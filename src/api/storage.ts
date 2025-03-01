@@ -1,0 +1,11 @@
+import { StorageInfo } from "@/models/StorageInfo";
+import api from "./apiInstance";
+
+export const getStorageInfo = async () => {
+    try {
+      const response = await api.get<StorageInfo>(`/storage/info`);
+      return response.data;
+    } catch (error) {
+      throw new Error(`Failed to fetch sharedLinks: ${error}`);
+    }
+  };
