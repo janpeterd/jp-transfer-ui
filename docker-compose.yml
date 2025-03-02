@@ -1,0 +1,7 @@
+services:
+  jp-tranfer-ui:
+    image: janpeterd/jp-transfer-ui:latest
+    ports:
+      - '3002:80'
+    environment:
+      VITE_API_URL: https://transferapi.janpeterdhalle.com
