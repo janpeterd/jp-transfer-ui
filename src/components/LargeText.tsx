@@ -3,7 +3,7 @@ interface LargeTextProps {
   string?: string; // Optional prop with a default value
 }
 
-const LargeText: React.FC<LargeTextProps> = ({ string = "JP file upload" }) => {
+const LargeText: React.FC<LargeTextProps> = ({ string = "JP Transfer" }) => {
   return (
     <>
       <div
