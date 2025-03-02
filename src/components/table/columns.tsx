@@ -4,6 +4,7 @@ import { DataTableColumnHeader } from "./colum-headers";
 import { SharedLink } from "@/models/SharedLink";
 import { formatSize } from "@/lib/utils";
 import CopyLink from "../CopyLink";
+import { Button } from "../ui/button";
 
 export const columns: ColumnDef<SharedLink>[] = [
   {
@@ -70,4 +71,16 @@ export const columns: ColumnDef<SharedLink>[] = [
     cell: ({ row }) =>
       row.original.isProtected ? row.original.password : "N/A",
   },
+  {
+    id: "actions",
+    accessorKey: "actions",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Actions" />
+    ),
+    cell: ({ row, table }) => (
+      <div className="flex justify-center items-center gap-4">
+        <Button variant={"destructive"} onClick={() => table.options.meta?.handleDelete(row)}>Delete</Button>
+      </div>
+    ),
+  }
 ];

@@ -1,14 +1,29 @@
 import LargeText from "@/components/LargeText";
-import { useQuery } from "@tanstack/react-query";
-import { getUserSharedLinks } from "@/api/sharedLinks";
+import { deleteSharedLink, getUserSharedLinks } from "@/api/sharedLinks";
 import { DataTable } from "@/components/table/data-table";
 import { columns } from "@/components/table/columns";
 import { getStorageInfo } from "@/api/storage";
 import { formatSize } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ProfileStat from "@/components/ProfileStat";
+import { SharedLink } from "@/models/SharedLink";
+import { Row } from "@tanstack/react-table";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+
 
 export default function Profile() {
+  const queryClient = useQueryClient();
   const email = localStorage.getItem("email");
   const encodedEmail = btoa(email || "");
   const { data, isLoading, refetch } = useQuery({
@@ -17,11 +32,30 @@ export default function Profile() {
     enabled: !!email,
   });
   const [usedSpace, setUsedSpace] = useState<number>(0);
+  const [open, setOpen] = useState(false);
+  const [sharedLinkRow, setSharedLinkRow] = useState<Row<SharedLink>>();
 
   const { data: storageData } = useQuery({
     queryKey: ["storage"],
     queryFn: async () => getStorageInfo(),
   });
+
+
+  const deleteSingleSharedLink = async (row: Row<SharedLink>) => {
+    if (row.original.id !== undefined) {
+      await deleteSharedLink(row.original.id);
+    } else {
+      toast.error("Failed to delete: ID is undefined");
+    }
+    queryClient.invalidateQueries({ queryKey: ["profile"] });
+    toast.success("SharedLink deleted successfully");
+  }
+
+  const handleDelete = async (row: Row<SharedLink>) => {
+    setOpen(true);
+    setSharedLinkRow(row);
+  };
+
 
   useEffect(() => {
     // get total file size from sharedlinks
@@ -48,14 +82,30 @@ export default function Profile() {
           {(data && data.length > 0) && (
             <>
 
-          <hr className="w-full my-14 border-white/20" />
-              <h2 className="text-5xl font-bold">Links</h2>
+              <hr className="w-full my-14 border-white/20" />
+              <h2 className="text-5xl font-bold">Links <span className="text-lg italic ml-2 align-middle">{data.length} active links</span></h2>
               <div className="w-full overflow-auto">
-                <DataTable data={data} columns={columns} reload_data={refetch} />
+                <DataTable data={data} columns={columns} reload_data={refetch} handleDelete={handleDelete} />
               </div>
-          </>
+            </>
           )}
 
+          <AlertDialog open={open} onOpenChange={setOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the link and all associated data.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => sharedLinkRow && deleteSingleSharedLink(sharedLinkRow)}>
+                  Continue
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           {isLoading && <p>Loading...</p>}
         </div>
       </div >

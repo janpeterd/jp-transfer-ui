@@ -39,7 +39,7 @@ export default function FileUpload() {
     .refine(
       (files) => {
         const totalSize = files.reduce((acc, file) => acc + file.size, 0);
-        return totalSize <= maxTotalSize * 1024;
+        return totalSize <= maxTotalSize * 1024 * 1024 * 1024;
       },
       {
         message: `Total file size should not exceed ${maxTotalSize} GB`,

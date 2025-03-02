@@ -27,6 +27,7 @@ export default function Admin() {
     queryKey: ["users"],
     queryFn: async () => getUsers(),
   });
+  const email = localStorage.getItem("email");
   const [filter, setFilter] = useState<string>("");
   const [filteredData, setFilteredData] = useState<User[]>(data || []);
   const [editUser, setEditUser] = useState<User | undefined>(undefined);
@@ -52,6 +53,10 @@ export default function Admin() {
   }
 
   const handleDelete = async (row: Row<User>) => {
+    if (row.original.email === email) {
+      toast.error("You cannot delete yourself");
+      return;
+    }
     setOpen(true);
     setUserRow(row);
   };
