@@ -5,7 +5,7 @@ on: push
 jobs:
   frontend:
     runs-on: ubuntu-latest
-    name: npm build deliver formula1-frontend container
+    name: npm build deliver jp transfer UI
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
