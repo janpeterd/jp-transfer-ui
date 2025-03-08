@@ -188,8 +188,10 @@ export const zipUploadFiles = async (
 
     // Update shared link and total uploaded size
     for (const result of results) {
-      sharedLink = { ...result.data }
-      totalUploadedSize += result.size
+      if (result.data !== '') {
+        sharedLink = { ...result.data }
+        totalUploadedSize += result.size
+      }
     }
 
     return sharedLink

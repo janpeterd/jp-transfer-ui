@@ -19,13 +19,10 @@ export default function SuccessMessage({
     queryFn: async () => (sharedLink?.id ? getSharedLink(sharedLink.id) : sharedLink),
     // Poll until we get a non-zero file size
     refetchInterval: (dat) => {
-      if (dat.state.data) {
-        if (dat.state.data.fileSize > 0) {
-
-          return false; // Stop polling
-        }
+      if (dat.state.data && dat.state.data.fileSize > 0) {
+        return false; // Stop polling
       }
-      return 200; // Poll every 2 seconds until file size exists
+      return 300;
     },
     // Keep polling even when the tab is in the background
     refetchIntervalInBackground: true,
