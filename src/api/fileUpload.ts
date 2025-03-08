@@ -53,8 +53,7 @@ const uploadWithRetry = async (
 }
 
 // Chunk size - you can adjust this as needed
-//const CHUNK_SIZE = 250 * 1024 * 1024
-const CHUNK_SIZE = 250 * 1024
+const CHUNK_SIZE = 120 * 1024 * 1024
 
 // Maximum number of concurrent uploads
 const MAX_CONCURRENT_UPLOADS = 4
@@ -110,15 +109,15 @@ async function processQueue<T>(tasks: (() => Promise<T>)[], concurrency: number)
   const inProgress: Promise<void>[] = []
   const tasksIterator = tasks.values()
   let currentTask = tasksIterator.next()
-  
+
   // Process tasks with limited concurrency
   while (!currentTask.done || inProgress.length > 0) {
     // Fill the concurrency slots
     while (!currentTask.done && inProgress.length < concurrency) {
       const task = currentTask.value
       const index = results.length
-      
-      const promise = task().then(result => {
+
+      const promise = task().then((result) => {
         results[index] = result
         // Remove this promise from the in-progress array
         const promiseIndex = inProgress.indexOf(promise)
@@ -126,18 +125,18 @@ async function processQueue<T>(tasks: (() => Promise<T>)[], concurrency: number)
           inProgress.splice(promiseIndex, 1)
         }
       })
-      
+
       inProgress.push(promise)
       results.push(null as any) // Reserve a spot in results array
       currentTask = tasksIterator.next()
     }
-    
+
     // Wait for at least one task to complete if we have active tasks
     if (inProgress.length > 0) {
       await Promise.race(inProgress)
     }
   }
-  
+
   return results
 }
 
@@ -151,15 +150,15 @@ export const zipUploadFiles = async (
   const uploadName = uuidv4().replace(/[^a-z0-9]/gi, '_') // Generate uploadName once
   let sharedLink: SharedLink | undefined = undefined
   let totalUploadedSize = 0
-  
+
   // Create all chunk upload tasks across all files
-  const allTasks: (() => Promise<{data: any, size: number}>)[] = []
-  
+  const allTasks: (() => Promise<{ data: any; size: number }>)[] = []
+
   // Build all chunk upload tasks
   for (const file of files) {
     const fileSize = file.size
     const totalChunks = Math.ceil(fileSize / CHUNK_SIZE)
-    
+
     // Create tasks for each chunk
     for (let chunkIndex = 1; chunkIndex <= totalChunks; chunkIndex++) {
       allTasks.push(
@@ -176,21 +175,23 @@ export const zipUploadFiles = async (
       )
     }
   }
-  
+
   try {
     if (updateMessageCallback) {
-      updateMessageCallback(`Starting parallel upload of ${allTasks.length} chunks with max ${MAX_CONCURRENT_UPLOADS} concurrent uploads`)
+      updateMessageCallback(
+        `Starting parallel upload of ${allTasks.length} chunks with max ${MAX_CONCURRENT_UPLOADS} concurrent uploads`
+      )
     }
-    
+
     // Process all tasks with limited concurrency
     const results = await processQueue(allTasks, MAX_CONCURRENT_UPLOADS)
-    
+
     // Update shared link and total uploaded size
     for (const result of results) {
       sharedLink = { ...result.data }
       totalUploadedSize += result.size
     }
-    
+
     console.log('Total size chunked uploaded', totalUploadedSize)
     return sharedLink
   } catch (error) {
@@ -198,3 +199,4 @@ export const zipUploadFiles = async (
     throw error
   }
 }
+
