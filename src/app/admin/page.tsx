@@ -19,6 +19,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import EditUserForm from "@/components/editUserForm";
 
 
 export default function Admin() {
@@ -33,6 +36,7 @@ export default function Admin() {
   const [editUser, setEditUser] = useState<User | undefined>(undefined);
   const [userRow, setUserRow] = useState<Row<User>>();
   const [open, setOpen] = useState(false);
+  const [openForm, setOpenForm] = useState(false);
 
 
   useEffect(() => {
@@ -43,13 +47,21 @@ export default function Admin() {
 
 
   const handleEdit = (row: Row<User>) => {
-    // Add your edit logic here
-    setEditUser(row.original);
+    const user: User = {
+      ...row.original,
+    };
+    setEditUser(user);
+    setOpenForm(true);
   };
   const deleteSingleUser = async (row: Row<User>) => {
     await deleteUser(row.original.id);
     queryClient.invalidateQueries({ queryKey: ["users"] });
     toast.success("User deleted successfully");
+  }
+
+  const formClose = () => {
+    setOpenForm(false);
+    setEditUser(undefined);
   }
 
   const handleDelete = async (row: Row<User>) => {
@@ -75,23 +87,28 @@ export default function Admin() {
             handleDelete={handleDelete}
           />
           <AlertDialog open={open} onOpenChange={setOpen}>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete the user and all associated data.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => userRow && deleteSingleUser(userRow)}>
-                    Continue
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the user and all associated data.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => userRow && deleteSingleUser(userRow)}>
+                  Continue
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
           </AlertDialog>
 
-          <AddUserForm editUser={editUser} />
+          <Dialog open={openForm} onOpenChange={formClose}>
+            <Button onClick={() => setOpenForm(true)}>
+              Add User
+            </Button>
+            {editUser ? <EditUserForm editUser={editUser} onComplete={formClose} /> : <AddUserForm />}
+          </Dialog>
         </>
       )}
     </div >

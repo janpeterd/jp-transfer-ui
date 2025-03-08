@@ -15,13 +15,12 @@ export default function FileList({
   onFileDelete,
 }: FileListProps) {
   const [totalSize, setTotalSize] = useState("");
- 
+
   useEffect(() => {
     const totalSize: number = givenFiles.reduce(
       (acc: number, file: File) => acc + file.size,
       0
     );
-    console.log("Total size:", totalSize);
     setTotalSize(formatSize(totalSize));
   }, [givenFiles]);
 

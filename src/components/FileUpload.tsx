@@ -67,7 +67,7 @@ export default function FileUpload() {
       files.filter((file: File) => file.name !== name && file.size !== size)
     );
   }
-  
+
 
   const handleUpload = async () => {
     if (user?.email === null || user?.email === undefined) {
@@ -84,14 +84,13 @@ export default function FileUpload() {
         setUploadStatusMessage
       );
       if (response !== undefined) {
-        console.log("LINK response:", response);
         setSharedLink(response);
       }
     } catch (error) {
       if (error instanceof ZodError) {
         toast.error(error.errors[0].message);
       } else if (error instanceof Error) {
-      toast.error(`Failed to upload files: ${error.message}`);
+        toast.error(`Failed to upload files: ${error.message}`);
       }
       toast.error("Failed to upload files");
     }
@@ -142,7 +141,6 @@ export default function FileUpload() {
     input.click();
   };
 
-  console.log("files:", files.length);
   return (
     <div
       className={`z-10 w-full max-w-7xl ${files.length > 0 ? "px-4" : "max-w-2xl"
@@ -227,7 +225,7 @@ export default function FileUpload() {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.5, ease: "easeInOut" }}
             >
-              <FileList key={files.length} givenFiles={files} onFileDelete={handleDelete}/>
+              <FileList key={files.length} givenFiles={files} onFileDelete={handleDelete} />
               <Button
                 onClick={handleUpload}
                 className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-600 transition-colors"

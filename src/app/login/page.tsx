@@ -31,7 +31,6 @@ export default function LogIn() {
 
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     const { valid } = await login(data);
-    console.log("valid", valid)
     if (!valid) {
       toast.error("Invalid credentials");
     }

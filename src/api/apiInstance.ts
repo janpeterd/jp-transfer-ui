@@ -16,6 +16,10 @@ api.interceptors.request.use(
     if (jwt) {
       config.headers['Authorization'] = `Bearer ${jwt}`
     }
+    // if request is a patch set jsonpatch content type
+    if (config.method === 'patch') {
+      config.headers['Content-Type'] = 'application/json-patch+json'
+    }
     return config
   },
   (error) => {

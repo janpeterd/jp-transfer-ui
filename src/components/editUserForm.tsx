@@ -2,18 +2,22 @@ import { DialogContent, DialogTitle, DialogDescription, DialogHeader, DialogFoot
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button"
-import { Role } from "@/models/User";
+import { Role, User } from "@/models/User";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"; // Correct import path for Form components
 import { toast } from "sonner"; // Import toast for success/error messages
 import ObjectSelect from "./ObjectSelect";
-import { register } from "@/api/auth";
 import { useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { patchUser, updateUser } from "@/api/users";
+import { useNavigate } from "@tanstack/react-router";
 
-export default function AddUserForm() {
+export default function EditUserForm({ editUser, onComplete }: { editUser: User | undefined, onComplete: () => void }) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
   const roles = [
     { value: Role.Admin, label: "Admin" },
     { value: Role.User, label: "User" },
@@ -22,7 +26,6 @@ export default function AddUserForm() {
   const userSchema = z.object({
     email: z.string().email().nonempty().max(100),
     username: z.string().nonempty().max(100),
-    password: z.string().nonempty().min(8).max(100),
     role: z.string().nonempty(), // Role should be string value, not Role enum directly if you are sending string in API
   });
 
@@ -30,26 +33,46 @@ export default function AddUserForm() {
   const form = useForm<z.infer<typeof userSchema>>({
     resolver: zodResolver(userSchema),
     defaultValues: {
-      email: "",
-      username: "",
-      password: "",
-      role: Role.User,
+      email: editUser?.email ?? "",
+      username: editUser?.username ?? "",
+      role: editUser?.role ?? Role.User,
     }
   });
 
-  const onSubmit = async (data: z.infer<typeof userSchema>) => {
-    try {
-      await register({
-        ...data,
+  // Reset form values when editUser changes
+  useEffect(() => {
+    if (editUser) {
+      form.reset({
+        email: editUser.email,
+        username: editUser.username,
+        role: editUser.role,
       });
-      toast.success("User created successfully");
-      form.reset();
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(`Failed to create user: ${error.message}`);
+    }
+  }, [editUser, form]);
+  const onSubmit = async (data: z.infer<typeof userSchema>) => {
+    const email = localStorage.getItem("email");
+    if (editUser) {
+      try {
+        await patchUser(editUser.id, {
+          ...editUser,
+          ...data,
+          role: data.role as Role,
+        });
+        toast.success("User updated successfully");
+        form.reset();
+        queryClient.invalidateQueries({ queryKey: ["users"] });
+        onComplete();
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          toast.error(`Failed to update user: ${error.message}`);
+        }
+        toast.error(`Failed to update user: ${editUser.email}`);
       }
-      toast.error("Failed to create user");
+    }
+    if (email === editUser?.email) {
+      // clear local storage if the user updates their own email
+      localStorage.clear();
+      navigate({ to: "/" });
     }
   };
 
@@ -59,9 +82,9 @@ export default function AddUserForm() {
       <DialogContent className="sm:max-w-[425px]">
         <div>
           <DialogHeader>
-            <DialogTitle>Add New User</DialogTitle>
+            <DialogTitle>Edit User</DialogTitle>
             <DialogDescription>
-              Fill out the form below to create a new user account.
+              Fill out the form below to update a user account.
             </DialogDescription>
           </DialogHeader>
           <div>
@@ -100,21 +123,6 @@ export default function AddUserForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <Label htmlFor="password" {...field} className="text-right">
-                        Password
-                      </Label>
-                      <FormControl>
-                        <Input id="password" type="password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
                   name="role"
                   render={({ field }) => (
                     <FormItem>
@@ -128,7 +136,7 @@ export default function AddUserForm() {
                 />
 
                 <DialogFooter>
-                  <Button type="submit">Add User</Button>
+                  <Button type="submit">Edit User</Button>
                 </DialogFooter>
               </form>
             </Form>

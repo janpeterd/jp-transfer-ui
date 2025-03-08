@@ -61,7 +61,6 @@ export default function Profile() {
     // get total file size from sharedlinks
     if (!data) return;
     setUsedSpace(data.reduce((acc: number, curr: any) => acc + curr.fileSize, 0));
-    console.log("usedSpace", usedSpace)
   }, [data, usedSpace]);
 
 
