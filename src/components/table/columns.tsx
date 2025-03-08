@@ -36,7 +36,7 @@ export const columns: ColumnDef<SharedLink>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Expires At" />
     ),
-    cell: ({ row }) => new Date(row.original.createdAt ?? "").toLocaleString(),
+    cell: ({ row }) => new Date(row.original.expiresAt ?? "").toLocaleString(),
   },
 
   {
@@ -53,23 +53,6 @@ export const columns: ColumnDef<SharedLink>[] = [
       <DataTableColumnHeader column={column} title="File Size" />
     ),
     cell: ({ row }) => formatSize(row.original.fileSize),
-  },
-  {
-    id: "isProtected",
-    accessorKey: "isProtected",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Protected" />
-    ),
-    cell: ({ row }) => (row.original.isProtected ? "Yes" : "No"),
-  },
-  {
-    id: "password",
-    accessorKey: "password",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Password" />
-    ),
-    cell: ({ row }) =>
-      row.original.isProtected ? row.original.password : "N/A",
   },
   {
     id: "actions",
