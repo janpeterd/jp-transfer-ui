@@ -43,7 +43,7 @@ function ObjectSelect({ objectName, objects: objects, value, onChange }: ObjectS
           <CommandList>
             <CommandEmpty>No {objectName} found.</CommandEmpty>
             <CommandGroup>
-              {objects.map((object, index) => (
+              {objects.map((object) => (
                 <>
                   <CommandItem
                     value={object.label}

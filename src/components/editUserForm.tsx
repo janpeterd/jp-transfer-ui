@@ -11,7 +11,7 @@ import { toast } from "sonner"; // Import toast for success/error messages
 import ObjectSelect from "./ObjectSelect";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { patchUser, updateUser } from "@/api/users";
+import { patchUser } from "@/api/users";
 import { useNavigate } from "@tanstack/react-router";
 
 export default function EditUserForm({ editUser, onComplete }: { editUser: User | undefined, onComplete: () => void }) {
