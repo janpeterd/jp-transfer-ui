@@ -42,3 +42,13 @@ export const updateSharedLink = async (sharedLinkId: number, sharedLink: Partial
     throw new Error(`Failed to update sharedLink: ${error}`)
   }
 }
+
+export const getSharedLink = async (sharedLinkId: number | string) => {
+  try {
+    const { data } = await api.get<SharedLink>(`/sharedLinks/${sharedLinkId}`)
+    console.log('data', data)
+    return data
+  } catch (error) {
+    throw new Error(`Failed to get sharedLink: ${error}`)
+  }
+}

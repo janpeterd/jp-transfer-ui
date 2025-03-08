@@ -1,8 +1,10 @@
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, Loader } from "lucide-react";
 import { Button } from "./ui/button";
 import { SharedLink } from "@/models/SharedLink";
 import { formatSize } from "@/lib/utils";
 import CopyLink from "./CopyLink";
+import { getSharedLink } from "@/api/sharedLinks";
+import { useQuery } from "@tanstack/react-query";
 
 export default function SuccessMessage({
   sharedLink,
@@ -11,6 +13,25 @@ export default function SuccessMessage({
   sharedLink: SharedLink;
   resetCallBack: () => void;
 }) {
+
+  const { data } = useQuery({
+    queryKey: ["sharedLink", sharedLink.id],
+    queryFn: async () => (sharedLink?.id ? getSharedLink(sharedLink.id) : sharedLink),
+    // Poll until we get a non-zero file size
+    refetchInterval: (dat) => {
+      if (dat.state.data) {
+        if (dat.state.data.fileSize > 0) {
+
+          return false; // Stop polling
+        }
+      }
+      return 200; // Poll every 2 seconds until file size exists
+    },
+    // Keep polling even when the tab is in the background
+    refetchIntervalInBackground: true,
+  });
+
+
   return (
     <div className="mt-4 backdrop-blur-sm bg-black/20 rounded-lg p-6 text-center border border-blue-500/20">
       <CheckCircle className="mx-auto h-12 w-12 text-blue-500 mb-4" />
@@ -22,11 +43,17 @@ export default function SuccessMessage({
         <p className="text-white/70">
           Your files have been successfully uploaded!
         </p>
-        {sharedLink.fileSize && (
+        {data && data.fileSize > 0 ? (
           <p className="text-white/70">
-            Download size: {formatSize(sharedLink.fileSize)}
+            Download size: {formatSize(data.fileSize)}
           </p>
-        )}
+        ) : (
+          <p className="flex items-center justify-center text-white/70 my-2">
+            <Loader className="animate-spin" />
+          </p>
+        )
+        }
+
         {sharedLink.expiresAt ? (
           <p>
             <span className="text-white/70">The link will expire on </span>
