@@ -192,11 +192,9 @@ export const zipUploadFiles = async (
       totalUploadedSize += result.size
     }
 
-    console.log('Total size chunked uploaded', totalUploadedSize)
     return sharedLink
   } catch (error) {
     console.error('Upload failed:', error)
     throw error
   }
 }
-

@@ -39,3 +39,17 @@ export const updateUser = async (userId: number, user: Partial<User>) => {
     throw new Error(`Failed to update user: ${error}`)
   }
 }
+
+// patch user with json operations spring data rest
+
+export const patchUser = async (userId: number, user: Partial<User>) => {
+  try {
+    await api.patch(`/users/${userId}`, [
+      { op: 'replace', path: '/username', value: user.username },
+      { op: 'replace', path: '/email', value: user.email },
+      { op: 'replace', path: '/role', value: user.role }
+    ])
+  } catch (error) {
+    throw new Error(`Failed to update user: ${error}`)
+  }
+}
