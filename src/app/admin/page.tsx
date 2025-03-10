@@ -1,14 +1,14 @@
-import { deleteUser, getUsers } from "@/api/users";
-import LargeText from "@/components/LargeText";
-import { DataTable } from "@/components/table/data-table";
-import { user_columns } from "@/components/table/user-columns";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Row } from "@tanstack/react-table";
-import { toast } from "sonner";
-import { useEffect, useState } from "react";
-import { Input } from "@/components/ui/input";
-import AddUserForm from "@/components/addUser";
-import { User } from "@/models/User";
+import { deleteUser, getUsers } from '@/api/users'
+import LargeText from '@/components/LargeText'
+import { DataTable } from '@/components/table/data-table'
+import { user_columns } from '@/components/table/user-columns'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Row } from '@tanstack/react-table'
+import { toast } from 'sonner'
+import { useEffect, useState } from 'react'
+import { Input } from '@/components/ui/input'
+import AddUserForm from '@/components/addUser'
+import { User } from '@/models/User'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,81 +17,90 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Dialog } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import EditUserForm from "@/components/editUserForm";
-
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog'
+import { Dialog } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import EditUserForm from '@/components/editUserForm'
+import SetPasswordForm from '@/components/setPassword'
 
 export default function Admin() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
   const { data, refetch } = useQuery({
-    queryKey: ["users"],
-    queryFn: async () => getUsers(),
-  });
-  const email = localStorage.getItem("email");
-  const [filter, setFilter] = useState<string>("");
-  const [filteredData, setFilteredData] = useState<User[]>(data || []);
-  const [editUser, setEditUser] = useState<User | undefined>(undefined);
-  const [userRow, setUserRow] = useState<Row<User>>();
-  const [open, setOpen] = useState(false);
-  const [openForm, setOpenForm] = useState(false);
-
+    queryKey: ['users'],
+    queryFn: async () => getUsers()
+  })
+  const email = localStorage.getItem('email')
+  const [filter, setFilter] = useState<string>('')
+  const [filteredData, setFilteredData] = useState<User[]>(data || [])
+  const [editUser, setEditUser] = useState<User | undefined>(undefined)
+  const [userRow, setUserRow] = useState<Row<User>>()
+  const [open, setOpen] = useState(false)
+  const [openForm, setOpenForm] = useState(false)
+  const [setPasswordForm, setSetPasswordForm] = useState(false)
 
   useEffect(() => {
     if (data) {
-      setFilteredData(data.filter((user) => user.email.includes(filter)));
+      setFilteredData(data.filter((user) => user.email.includes(filter)))
     }
-  }, [data, filter]);
-
+  }, [data, filter])
 
   const handleEdit = (row: Row<User>) => {
     const user: User = {
-      ...row.original,
-    };
-    setEditUser(user);
-    setOpenForm(true);
-  };
+      ...row.original
+    }
+    setEditUser(user)
+    setOpenForm(true)
+  }
   const deleteSingleUser = async (row: Row<User>) => {
-    await deleteUser(row.original.id);
-    queryClient.invalidateQueries({ queryKey: ["users"] });
-    toast.success("User deleted successfully");
+    await deleteUser(row.original.id)
+    queryClient.invalidateQueries({ queryKey: ['users'] })
+    toast.success('User deleted successfully')
   }
 
   const formClose = () => {
-    setOpenForm(false);
-    setEditUser(undefined);
+    setOpenForm(false)
+    setEditUser(undefined)
   }
 
   const handleDelete = async (row: Row<User>) => {
     if (row.original.email === email) {
-      toast.error("You cannot delete yourself");
-      return;
+      toast.error('You cannot delete yourself')
+      return
     }
-    setOpen(true);
-    setUserRow(row);
-  };
+    setOpen(true)
+    setUserRow(row)
+  }
+
+  const handleSetPassword = async (row: Row<User>) => {
+    setUserRow(row)
+    setSetPasswordForm(true)
+  }
 
   return (
-    <div className="flex flex-col gap-4 w-[80%] max-w-[800px] mx-auto z-20">
+    <div className="z-20 mx-auto flex w-[80%] max-w-[800px] flex-col gap-4">
       <LargeText string="Admin" />
-      {(data && data.length > 0) && (
+      {data && data.length > 0 && (
         <>
-          <Input placeholder="Filter on email" onChange={(event) => setFilter(event.target.value)} />
+          <Input
+            placeholder="Filter on email"
+            onChange={(event) => setFilter(event.target.value)}
+          />
           <DataTable
             data={filteredData}
             columns={user_columns}
             reload_data={refetch}
             handleEdit={handleEdit}
             handleDelete={handleDelete}
+            handleSetPassword={handleSetPassword}
           />
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete the user and all associated data.
+                  This action cannot be undone. This will permanently delete the user and all
+                  associated data.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -104,13 +113,24 @@ export default function Admin() {
           </AlertDialog>
 
           <Dialog open={openForm} onOpenChange={formClose}>
-            <Button onClick={() => setOpenForm(true)}>
-              Add User
-            </Button>
-            {editUser ? <EditUserForm editUser={editUser} onComplete={formClose} /> : <AddUserForm />}
+            <Button onClick={() => setOpenForm(true)}>Add User</Button>
+            {editUser ? (
+              <EditUserForm editUser={editUser} onComplete={formClose} />
+            ) : (
+              <AddUserForm />
+            )}
+          </Dialog>
+
+          <Dialog open={setPasswordForm} onOpenChange={setSetPasswordForm}>
+            {userRow && (
+              <SetPasswordForm
+                user={userRow?.original}
+                closeForm={() => setSetPasswordForm(false)}
+              />
+            )}
           </Dialog>
         </>
       )}
-    </div >
-  );
+    </div>
+  )
 }

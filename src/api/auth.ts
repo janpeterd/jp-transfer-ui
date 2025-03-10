@@ -19,6 +19,7 @@ export const login = async (loginCredentials: LoginCredentials) => {
   let response = null
   try {
     response = await api.post('/auth/login', loginCredentials)
+    console.log(response)
     localStorage.setItem('token', response.data.token)
     localStorage.setItem('email', response.data.email)
     localStorage.setItem('role', response.data.role)
@@ -31,5 +32,35 @@ export const login = async (loginCredentials: LoginCredentials) => {
       toast.error('Failed to login')
     }
     throw new Error(`Failed to register: ${error}`)
+  }
+}
+
+export const setPassword = async (email: string, password: string) => {
+  try {
+    const response = await api.post('/auth/set-password', {
+      email,
+      password
+    })
+    return response.data
+  } catch (error) {
+    throw new Error(`Failed to set password: ${error}`)
+  }
+}
+
+export const changePassword = async ({
+  password,
+  newPassword
+}: {
+  password: string
+  newPassword: string
+}) => {
+  try {
+    const response = await api.post('/auth/change-password', {
+      password,
+      newPassword
+    })
+    return response.data
+  } catch (error) {
+    throw new Error(`Failed to change password: ${error}`)
   }
 }

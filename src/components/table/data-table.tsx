@@ -7,8 +7,8 @@ import {
   getSortedRowModel,
   Row,
   SortingState,
-  useReactTable,
-} from "@tanstack/react-table";
+  useReactTable
+} from '@tanstack/react-table'
 
 import {
   Table,
@@ -16,24 +16,26 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import React from "react";
+  TableRow
+} from '@/components/ui/table'
+import React from 'react'
 
 declare module '@tanstack/react-table' {
   interface TableMeta<TData> {
-    reload_data: unknown;
-    handleEdit: (row: Row<TData>) => void;
-    handleDelete: (row: Row<TData>) => void;
+    reload_data: unknown
+    handleEdit: (row: Row<TData>) => void
+    handleDelete: (row: Row<TData>) => void
+    handleSetPassword?: (row: Row<TData>) => void
   }
 }
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  reload_data: unknown;
-  handleEdit?: (row: Row<TData>) => void;
-  handleDelete?: (row: Row<TData>) => void;
+  columns: ColumnDef<TData, TValue>[]
+  data: TData[]
+  reload_data: unknown
+  handleEdit?: (row: Row<TData>) => void
+  handleDelete?: (row: Row<TData>) => void
+  handleSetPassword?: (row: Row<TData>) => void
 }
 
 export function DataTable<TData, TValue>({
@@ -42,11 +44,10 @@ export function DataTable<TData, TValue>({
   reload_data,
   handleEdit,
   handleDelete,
+  handleSetPassword
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
+  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
 
   const table = useReactTable({
     data,
@@ -58,18 +59,19 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting,
-      columnFilters,
+      columnFilters
     },
-    meta: { 
-      reload_data, 
-      handleEdit: handleEdit || (() => {}), 
-      handleDelete: handleDelete || (() => {}) 
-    },
-  });
+    meta: {
+      reload_data,
+      handleEdit: handleEdit || (() => {}),
+      handleDelete: handleDelete || (() => {}),
+      handleSetPassword: handleSetPassword || (() => {})
+    }
+  })
 
   return (
     <>
-      <div className="flex justify-start items-center gap-2"></div>
+      <div className="flex items-center justify-start gap-2"></div>
       <div className="w-full rounded-md border">
         <Table>
           <TableHeader>
@@ -80,12 +82,9 @@ export function DataTable<TData, TValue>({
                     <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
-                  );
+                  )
                 })}
               </TableRow>
             ))}
@@ -93,26 +92,17 @@ export function DataTable<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
+                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>
@@ -121,5 +111,5 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
     </>
-  );
+  )
 }

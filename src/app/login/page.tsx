@@ -33,9 +33,10 @@ export default function LogIn() {
     const { valid } = await login(data);
     if (!valid) {
       toast.error("Invalid credentials");
+    } else {
+      setIsAuthenticated(true);
+      navigate({ to: "/" });
     }
-    setIsAuthenticated(true);
-    navigate({ to: "/" });
   }
 
   return (
