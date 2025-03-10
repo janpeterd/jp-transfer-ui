@@ -25,7 +25,7 @@ declare module '@tanstack/react-table' {
     reload_data: unknown
     handleEdit: (row: Row<TData>) => void
     handleDelete: (row: Row<TData>) => void
-    handleSetPassword?: (row: Row<TData>) => void
+    handleSetPassword: (row: Row<TData>) => void
   }
 }
 
@@ -63,9 +63,9 @@ export function DataTable<TData, TValue>({
     },
     meta: {
       reload_data,
-      handleEdit: handleEdit || (() => {}),
-      handleDelete: handleDelete || (() => {}),
-      handleSetPassword: handleSetPassword || (() => {})
+      handleEdit: handleEdit || (() => { }),
+      handleDelete: handleDelete || (() => { }),
+      handleSetPassword: handleSetPassword || (() => { })
     }
   })
 

@@ -107,7 +107,7 @@ export default function Profile() {
           )}
 
           <Dialog open={openChangePassword} onOpenChange={setOpenChangePassword}>
-            <ChangePasswordForm onClose={() => setOpenChangePassword(false)} />
+            <ChangePasswordForm />
           </Dialog>
 
           <AlertDialog open={open} onOpenChange={setOpen}>

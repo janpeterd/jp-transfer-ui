@@ -16,7 +16,6 @@ import { toast } from 'sonner' // Import toast for success/error messages
 import { setPassword } from '@/api/auth'
 import { useQueryClient } from '@tanstack/react-query'
 import { User } from '@/models/User'
-import { useAuth } from '@/hooks/useAuth'
 import { useNavigate } from '@tanstack/react-router'
 
 export default function SetPasswordForm({
