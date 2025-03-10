@@ -18,7 +18,7 @@ const useStore = create<StoreState>((set) => ({
   setEncodedEmail: (email) => set({ encodedEmail: email }),
   isAuthenticated: false,
   setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated: isAuthenticated }),
-  role: '',
+  role: 'USER',
   setRole: (role) => set({ role: role })
 }))
 
