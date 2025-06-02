@@ -27,7 +27,6 @@ import { DataTable } from './data-table'
 declare module '@tanstack/react-table' {
   interface TableMeta<TData> {
     handleEdit: (row: Row<TData>) => void
-    handleDelete: (row: Row<TData>) => void
     handleSetPassword: (row: Row<TData>) => void
   }
 }

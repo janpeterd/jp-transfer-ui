@@ -176,7 +176,7 @@ export default function FileUpload() {
   const canUpload = files.length > 0 && !uploading;
 
   return (
-    <div className={`-mt-24 z-10 w-full px-2 sm:px-4 ${files.length > 0 && !uploading && !uploadComplete ? 'max-w-7xl' : 'max-w-3xl'}`}>
+    <div className={`mt-[15vh] z-10 w-full px-2 sm:px-4 ${files.length > 0 && !uploading && !uploadComplete ? 'max-w-7xl' : 'max-w-3xl'}`}>
       <div
         {...getRootProps()}
         className={`grid transition-all duration-300 ease-in-out ${files.length > 0 && !uploading && !uploadComplete

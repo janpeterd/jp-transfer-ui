@@ -14,11 +14,11 @@ export const Route = createRootRoute({
           <Navbar />
         </div>
 
-        <main className="dark relative flex min-h-screen flex-col items-center justify-center p-4 overflow-hidden">
+        <main className="dark relative flex flex-col items-center justify-center p-4">
           <Outlet />
           <Footer />
         </main>
-        <div className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 -z-10 overflow-hidden">
           <BottomGradient />
         </div>
         <Toaster richColors={true} />

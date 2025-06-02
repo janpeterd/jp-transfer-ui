@@ -122,7 +122,7 @@ async function processQueue<T>(tasks: (() => Promise<T>)[], concurrency: number)
       })
 
       inProgress.push(promise)
-      results.push(null as any) // Reserve a spot in results array
+      results.push(null as T)
       currentTask = tasksIterator.next()
     }
 
@@ -207,7 +207,7 @@ const addUploadChunkTaskToQueue = async ({
   file: FileResponseDto
   fileData: File
   taskQueue: (() => Promise<{ data: any; size: number }>)[]
-  onUploadProgress: (progressEvent: AxiosProgressEvent) => void
+  onUploadProgress?: (progressEvent: AxiosProgressEvent) => void
   updateMessageCallback?: (message: string) => void
 }) => {
   for (let chunkIndex = 1; chunkIndex <= file.totalChunks; chunkIndex++) {

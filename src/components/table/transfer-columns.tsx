@@ -87,7 +87,7 @@ export default function TransferColumns({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Actions" />
       ),
-      cell: ({ row, table }) => (
+      cell: ({ row }) => (
         <div className="flex justify-center items-center gap-4">
           <AlertDialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
             <AlertDialogContent className="bg-neutral-800 border-neutral-700 text-neutral-100">

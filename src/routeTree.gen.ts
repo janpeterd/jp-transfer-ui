@@ -16,7 +16,6 @@ import { Route as ProfileImport } from './routes/profile'
 import { Route as LoginImport } from './routes/login'
 import { Route as AdminImport } from './routes/admin'
 import { Route as IndexImport } from './routes/index'
-import { Route as DownloadIndexImport } from './routes/download/index'
 import { Route as DownloadLinkUuidImport } from './routes/download/$linkUuid'
 
 // Create/Update Routes
@@ -48,12 +47,6 @@ const AdminRoute = AdminImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const DownloadIndexRoute = DownloadIndexImport.update({
-  id: '/download/',
-  path: '/download/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -109,13 +102,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DownloadLinkUuidImport
       parentRoute: typeof rootRoute
     }
-    '/download/': {
-      id: '/download/'
-      path: '/download'
-      fullPath: '/download'
-      preLoaderRoute: typeof DownloadIndexImport
-      parentRoute: typeof rootRoute
-    }
   }
 }
 
@@ -128,7 +114,6 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/signout': typeof SignoutRoute
   '/download/$linkUuid': typeof DownloadLinkUuidRoute
-  '/download': typeof DownloadIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -138,7 +123,6 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/signout': typeof SignoutRoute
   '/download/$linkUuid': typeof DownloadLinkUuidRoute
-  '/download': typeof DownloadIndexRoute
 }
 
 export interface FileRoutesById {
@@ -149,7 +133,6 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/signout': typeof SignoutRoute
   '/download/$linkUuid': typeof DownloadLinkUuidRoute
-  '/download/': typeof DownloadIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -161,7 +144,6 @@ export interface FileRouteTypes {
     | '/profile'
     | '/signout'
     | '/download/$linkUuid'
-    | '/download'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -170,7 +152,6 @@ export interface FileRouteTypes {
     | '/profile'
     | '/signout'
     | '/download/$linkUuid'
-    | '/download'
   id:
     | '__root__'
     | '/'
@@ -179,7 +160,6 @@ export interface FileRouteTypes {
     | '/profile'
     | '/signout'
     | '/download/$linkUuid'
-    | '/download/'
   fileRoutesById: FileRoutesById
 }
 
@@ -190,7 +170,6 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   SignoutRoute: typeof SignoutRoute
   DownloadLinkUuidRoute: typeof DownloadLinkUuidRoute
-  DownloadIndexRoute: typeof DownloadIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -200,7 +179,6 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   SignoutRoute: SignoutRoute,
   DownloadLinkUuidRoute: DownloadLinkUuidRoute,
-  DownloadIndexRoute: DownloadIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -218,8 +196,7 @@ export const routeTree = rootRoute
         "/login",
         "/profile",
         "/signout",
-        "/download/$linkUuid",
-        "/download/"
+        "/download/$linkUuid"
       ]
     },
     "/": {
@@ -239,9 +216,6 @@ export const routeTree = rootRoute
     },
     "/download/$linkUuid": {
       "filePath": "download/$linkUuid.tsx"
-    },
-    "/download/": {
-      "filePath": "download/index.tsx"
     }
   }
 }

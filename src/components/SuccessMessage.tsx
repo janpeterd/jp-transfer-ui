@@ -46,7 +46,7 @@ export default function SuccessMessage({
         )}
       </div>
       <div className="mt-4 text-white">
-        <CopyLink url={transferResponse.sharedLink?.downloadLink} />
+        <CopyLink url={`${window.origin}/download/${transferResponse.sharedLink?.uuid}`} />
         <Button
           onClick={resetCallBack}
           className="ml-4 bg-red-500 text-white py-2 px-4 rounded"

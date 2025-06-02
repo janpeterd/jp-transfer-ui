@@ -24,7 +24,10 @@ export default function ProfileStatCard({
             {title}
           </h3>
           <div className="p-2 bg-neutral-700/50 rounded-lg">
-            {React.cloneElement(icon as React.ReactElement, { className: "h-5 w-5 sm:h-6 sm:w-6" })}
+            {React.isValidElement(icon) && React.cloneElement(
+              icon as React.ReactElement<{ className?: string }>,
+              { className: "h-5 w-5 sm:h-6 sm:w-6" }
+            )}
           </div>
         </div>
         <p className="text-3xl sm:text-4xl font-bold text-neutral-100 mb-1 truncate" title={value}>

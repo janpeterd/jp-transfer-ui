@@ -13,9 +13,9 @@ export default function Download({
   })
 
   return (
-    <div className='w-full max-w-screen-md max-h-[80vh]'>
+    <div className='w-full max-w-screen-md md:-mt-4'>
       {data?.data && (
-        <div className='w-full h-full'>
+        <div className='w-full'>
           <TransferInfo transfer={data.data} />
         </div>
       )}
