@@ -59,11 +59,11 @@ export default function Navbar() {
         <a
           href="/"
           className="text-bold text-red flex-auto p-1 text-center text-xl hover:text-zinc-200">
-          <div className="ml-12 min-w-[150px] pl-8 font-bold">JP Transfer</div>
+          <div className="hidden sm:block ml-12 min-w-[150px] pl-8 font-bold">JP Transfer</div>
         </a>
       </button>
 
-      <div className="justify-content m-2 flex-shrink-0 items-center gap-x-2 rounded-full bg-white/10 px-2 text-white backdrop-blur-lg backdrop-saturate-150 [view-transition-name:header-right] md:flex">
+      <div className="justify-content m-2 flex-nowrap flex-shrink-0 items-center gap-x-2 rounded-full bg-white/10 px-2 text-white backdrop-blur-lg backdrop-saturate-150 [view-transition-name:header-right] md:flex">
         {links.map((link) => (
           <Link
             key={link.href}
@@ -126,13 +126,11 @@ export default function Navbar() {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <div>
-            <Link to="/login" className="hidden sm:block">
-              <Button variant="link" className="font-bold text-lg p-1 text-white hover:text-blue-400 hover:bg-blue-500/10 pr-2">
-                Log In
-              </Button>
-            </Link>
-          </div>
+          <Link to="/login" className="">
+            <Button variant="link" className="font-bold text-lg p-1 text-white hover:text-blue-400 hover:bg-blue-500/10 pr-2">
+              Log In
+            </Button>
+          </Link>
         )}
       </div>
     </nav >
