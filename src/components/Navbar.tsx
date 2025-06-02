@@ -18,8 +18,8 @@ import { Avatar, AvatarFallback } from './ui/avatar';
 import { Button } from './ui/button';
 
 const links = [
-  { href: "/", label: "Home" },
-  { href: "/profile", label: "Profile" }
+  { href: "/", label: "Home", auth: true },
+  { href: "/profile", label: "Profile", auth: true }
 ];
 export default function Navbar() {
   const { user, isAuthenticated, setIsAuthenticated } = useAuth();
@@ -49,9 +49,9 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 z-20 flex w-screen justify-between bg-transparent pt-2 font-elec print:hidden">
       <button
-        className="justify-content flex w-auto flex-shrink cursor-pointer items-center rounded-full bg-white/10 pr-4 backdrop-blur backdrop-saturate-150 [view-transition-name:header-left]"
+        className="justify-content flex w-auto flex-shrink cursor-pointer items-center rounded-full sm:bg-white/10 pr-4 backdrop-blur backdrop-saturate-150 [view-transition-name:header-left]"
         onClick={() => redirect({ to: '/' })}>
-        <div className="-top-20 absolute -left-12 z-0 h-[180px] w-48">
+        <div className="-top-10 md:-top-20 absolute -left-12 z-0 h-[180px] w-48">
           <Canvas>
             <Logo3d />
           </Canvas>
@@ -64,7 +64,7 @@ export default function Navbar() {
       </button>
 
       <div className="justify-content m-2 flex-nowrap flex-shrink-0 items-center gap-x-2 rounded-full bg-white/10 px-2 text-white backdrop-blur-lg backdrop-saturate-150 [view-transition-name:header-right] md:flex">
-        {links.map((link) => (
+        {links.map((link) => (link.auth === isAuthenticated) && (
           <Link
             key={link.href}
             to={link.href}
