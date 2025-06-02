@@ -26,6 +26,8 @@ export default function TransferColumns({
     if (row.original.id !== undefined) {
       await deleteTransfer(row.original.id);
       queryClient.invalidateQueries({ queryKey: ['userProfileTransfers'] });
+      queryClient.invalidateQueries({ queryKey: ['systemStorageInfoProfile'] });
+      queryClient.invalidateQueries({ queryKey: ['userStorageInfoProfile'] });
       toast.success('Transfer deleted successfully!');
     } else {
       toast.error('Failed to transfer: ID is undefined.');
@@ -64,14 +66,6 @@ export default function TransferColumns({
         <DataTableColumnHeader column={column} title="Expires At" />
       ),
       cell: ({ row }) => new Date(row.original.sharedLink?.expiresAt ?? "").toLocaleString(),
-    },
-
-    {
-      id: "maxDownloads",
-      accessorKey: "sharedLink.maxDownloads",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Max Downloads" />
-      ),
     },
     {
       id: "fileSize",

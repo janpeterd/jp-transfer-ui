@@ -17,7 +17,7 @@ export default function Admin() {
           </h1>
         </div>
       </header>
-      <div className="bg-neutral-800/50 backdrop-blur-md border border-neutral-700/60 rounded-xl z-20 mx-auto flex w-[80%] max-w-[800px] flex-col gap-4 shadow-2xl p-6 sm:p-8 space-y-8">
+      <div className="bg-neutral-800/50 backdrop-blur-md border border-neutral-700/60 rounded-xl z-20 mx-auto flex max-w-screen-md flex-col gap-4 shadow-2xl p-6 sm:p-8 space-y-8">
         <section>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight uppercase text-primary mb-6">Users</h2>
           {data && (data?.data?.length || 0) > 0 && (

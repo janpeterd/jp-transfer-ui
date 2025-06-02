@@ -14,7 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { formatSize } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { KeyRound, Loader2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export default function Profile() {
   const { data, isLoading, refetch } = useQuery({
@@ -22,7 +22,6 @@ export default function Profile() {
     queryFn: async () => getUserTransfers(),
   });
   const { user } = useAuth();
-  const [usedSpace, setUsedSpace] = useState<number>(0);
   const [openChangePasswordDialog, setOpenChangePasswordDialog] = useState(false);
 
   const { data: storageData, isLoading: isLoadingStorage } = useQuery({
@@ -34,13 +33,7 @@ export default function Profile() {
     queryKey: ['userStorageInfoProfile'],
     queryFn: async () => getUserStorageInfo(),
   });
-
-  useEffect(() => {
-    if (data?.data) {
-      setUsedSpace(data.data.reduce((acc: number, curr: any) => acc + (curr.fileSize || 0), 0));
-    }
-  }, [data]);
-
+  console.log("userStorageData", userStorageData)
 
   if (isLoading || isLoadingStorage || isLoadingUserStorage) {
     return (
@@ -75,11 +68,6 @@ export default function Profile() {
           <section>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight uppercase text-primary mb-6">Overview</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              {usedSpace > 0 && (
-                <div className="bg-neutral-700/40 p-5 rounded-lg border border-neutral-600/50 shadow-md">
-                  <ProfileStat statName="Your Space Usage" statValue={formatSize(usedSpace)} />
-                </div>
-              )}
               {storageData && (
                 <div className="bg-neutral-700/40 p-5 rounded-lg border border-neutral-600/50 shadow-md">
                   <ProfileStat
@@ -94,16 +82,16 @@ export default function Profile() {
                   </div>
                 </div>
               )}
-              {(userStorageData && storageData) && (
+              {(userStorageData || 0) >= 0 && storageData && (
                 <div className="bg-neutral-700/40 p-5 rounded-lg border border-neutral-600/50 shadow-md">
                   <ProfileStat
                     statName="Your storage"
-                    statValue={formatSize(userStorageData)}
+                    statValue={formatSize(userStorageData || 0)}
                   />
                   <div className="mt-2 h-1.5 w-full bg-neutral-600 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-sky-500"
-                      style={{ width: `${(userStorageData * 100) / storageData.totalSpace}%` }}
+                      style={{ width: `${((userStorageData || 0) * 100) / storageData.totalSpace}%` }}
                     ></div>
                   </div>
                 </div>
