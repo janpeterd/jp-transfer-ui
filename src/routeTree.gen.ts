@@ -16,6 +16,8 @@ import { Route as ProfileImport } from './routes/profile'
 import { Route as LoginImport } from './routes/login'
 import { Route as AdminImport } from './routes/admin'
 import { Route as IndexImport } from './routes/index'
+import { Route as DownloadIndexImport } from './routes/download/index'
+import { Route as DownloadLinkUuidImport } from './routes/download/$linkUuid'
 
 // Create/Update Routes
 
@@ -46,6 +48,18 @@ const AdminRoute = AdminImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DownloadIndexRoute = DownloadIndexImport.update({
+  id: '/download/',
+  path: '/download/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DownloadLinkUuidRoute = DownloadLinkUuidImport.update({
+  id: '/download/$linkUuid',
+  path: '/download/$linkUuid',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -88,6 +102,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignoutImport
       parentRoute: typeof rootRoute
     }
+    '/download/$linkUuid': {
+      id: '/download/$linkUuid'
+      path: '/download/$linkUuid'
+      fullPath: '/download/$linkUuid'
+      preLoaderRoute: typeof DownloadLinkUuidImport
+      parentRoute: typeof rootRoute
+    }
+    '/download/': {
+      id: '/download/'
+      path: '/download'
+      fullPath: '/download'
+      preLoaderRoute: typeof DownloadIndexImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -99,6 +127,8 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/signout': typeof SignoutRoute
+  '/download/$linkUuid': typeof DownloadLinkUuidRoute
+  '/download': typeof DownloadIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -107,6 +137,8 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/signout': typeof SignoutRoute
+  '/download/$linkUuid': typeof DownloadLinkUuidRoute
+  '/download': typeof DownloadIndexRoute
 }
 
 export interface FileRoutesById {
@@ -116,14 +148,38 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/signout': typeof SignoutRoute
+  '/download/$linkUuid': typeof DownloadLinkUuidRoute
+  '/download/': typeof DownloadIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/login' | '/profile' | '/signout'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/login'
+    | '/profile'
+    | '/signout'
+    | '/download/$linkUuid'
+    | '/download'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/login' | '/profile' | '/signout'
-  id: '__root__' | '/' | '/admin' | '/login' | '/profile' | '/signout'
+  to:
+    | '/'
+    | '/admin'
+    | '/login'
+    | '/profile'
+    | '/signout'
+    | '/download/$linkUuid'
+    | '/download'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/login'
+    | '/profile'
+    | '/signout'
+    | '/download/$linkUuid'
+    | '/download/'
   fileRoutesById: FileRoutesById
 }
 
@@ -133,6 +189,8 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
   SignoutRoute: typeof SignoutRoute
+  DownloadLinkUuidRoute: typeof DownloadLinkUuidRoute
+  DownloadIndexRoute: typeof DownloadIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -141,6 +199,8 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
   SignoutRoute: SignoutRoute,
+  DownloadLinkUuidRoute: DownloadLinkUuidRoute,
+  DownloadIndexRoute: DownloadIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -157,7 +217,9 @@ export const routeTree = rootRoute
         "/admin",
         "/login",
         "/profile",
-        "/signout"
+        "/signout",
+        "/download/$linkUuid",
+        "/download/"
       ]
     },
     "/": {
@@ -174,6 +236,12 @@ export const routeTree = rootRoute
     },
     "/signout": {
       "filePath": "signout.tsx"
+    },
+    "/download/$linkUuid": {
+      "filePath": "download/$linkUuid.tsx"
+    },
+    "/download/": {
+      "filePath": "download/index.tsx"
     }
   }
 }

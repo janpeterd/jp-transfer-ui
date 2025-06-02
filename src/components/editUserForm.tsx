@@ -1,18 +1,18 @@
-import { DialogContent, DialogTitle, DialogDescription, DialogHeader, DialogFooter } from "@/components/ui/dialog";
+import { updateUser } from "@/api/users";
+import { Button } from "@/components/ui/button";
+import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"; // Correct import path for Form components
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button"
 import { Role, User } from "@/models/User";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"; // Correct import path for Form components
-import { toast } from "sonner"; // Import toast for success/error messages
-import ObjectSelect from "./ObjectSelect";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { patchUser } from "@/api/users";
 import { useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner"; // Import toast for success/error messages
+import { z } from "zod";
+import ObjectSelect from "./ObjectSelect";
 
 export default function EditUserForm({ editUser, onComplete }: { editUser: User | undefined, onComplete: () => void }) {
   const queryClient = useQueryClient();
@@ -53,7 +53,7 @@ export default function EditUserForm({ editUser, onComplete }: { editUser: User 
     const email = localStorage.getItem("email");
     if (editUser) {
       try {
-        await patchUser(editUser.id, {
+        await updateUser(editUser.id, {
           ...editUser,
           ...data,
           role: data.role as Role,

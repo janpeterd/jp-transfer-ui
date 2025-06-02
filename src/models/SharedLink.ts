@@ -1,15 +1,12 @@
 export interface SharedLink {
-  id?: number
+  id: number
+  uuid: string
   url: string
   downloadLink: string
-  ownerMailBase64: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  expiresAt?: Date | string
-  downloads?: number
+  transferId: number
+  createdAt: Date | string
+  updatedAt: Date | string
+  expiresAt: Date | string
+  downloads: number
   maxDownloads?: number
-  fileSize: number
-  fileName: string
-  isProtected?: boolean
-  password?: string
 }

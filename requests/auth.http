@@ -1,0 +1,17 @@
+### LOGIN_ADMIN
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{"email":"admin@example.com","password":"admin"}
+
+
+### CURRENT
+GET http:///localhost:8080/api/user/current
+Authorization: Bearer {{LOGIN_ADMIN.response.body.$.authToken}}
+Content-Type: application/json
+
+
+### CURRENT
+GET http:///localhost:8080/storage/info/current-user
+Authorization: Bearer {{LOGIN_ADMIN.response.body.$.authToken}}
+Content-Type: application/json

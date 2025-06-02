@@ -1,4 +1,4 @@
-import { create } from 'zustand'
+import { create, StoreApi, UseBoundStore } from 'zustand'
 
 interface StoreState {
   uploadStatusMessage: string
@@ -11,7 +11,7 @@ interface StoreState {
   setRole: (roles: string) => void
 }
 
-const useStore = create<StoreState>((set) => ({
+const useStore: UseBoundStore<StoreApi<StoreState>> = create<StoreState>((set) => ({
   uploadStatusMessage: '',
   setUploadStatusMessage: (message) => set({ uploadStatusMessage: message }),
   encodedEmail: '',

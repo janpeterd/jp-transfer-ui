@@ -1,0 +1,56 @@
+### LOGIN
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+Accept: application/json
+
+{"email":"admin@example.com","password":"admin"}
+
+### START_TRANSFER
+POST http://localhost:8080/api/transfer
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{LOGIN.response.body.$.authToken}}
+
+{
+  "startTime": "2025-06-02T13:55:18.564Z",
+    "files": [
+      {
+        "fileName": "test.txt",
+        "fileType": "text/plain",
+        "fileSize": 10,
+        "fileChecksum": "0181d93fee60b818e3f92e470ea97a2aff4ca56a",
+        "chunkSize": 125829120,
+        "totalChunks": 1
+      }
+    ]
+}
+
+### UPLOAD_CHUNK
+POST http://localhost:8080/api/upload
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary{{$timestamp}}
+Accept: application/json
+Authorization: Bearer {{LOGIN.response.body.$.authToken}}
+
+------WebKitFormBoundary{{$timestamp}}
+Content-Disposition: form-data; name="fileId"
+
+{{START_TRANSFER.response.body.$.files[0].id}}
+------WebKitFormBoundary{{$timestamp}}
+Content-Disposition: form-data; name="chunkIndex"
+
+1
+------WebKitFormBoundary{{$timestamp}}
+Content-Disposition: form-data; name="chunkSize"
+
+10
+------WebKitFormBoundary{{$timestamp}}
+Content-Disposition: form-data; name="chunkChecksum"
+
+0181d93fee60b818e3f92e470ea97a2aff4ca56a
+------WebKitFormBoundary{{$timestamp}}
+Content-Disposition: form-data; name="multipartFile"; filename="blob"
+Content-Type: application/octet-stream
+
+< ./files/test.txt
+
+------WebKitFormBoundary{{$timestamp}}--

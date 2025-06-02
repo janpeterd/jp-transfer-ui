@@ -1,8 +1,13 @@
+import CONSTANTS from '@/constants'
+import { calculateChecksum, calculateChecksums, formatSize } from '@/lib/utils'
+import { ChunkRequestDto } from '@/models/ChunkRequestDto'
+import { FileResponseDto } from '@/models/FileResponseDto'
+import { StartTransferRequestDto } from '@/models/StartTransferRequestDto'
+import { chunkSchema } from '@/schemas/chunk'
 import { AxiosProgressEvent } from 'axios'
 import api from './apiInstance'
-import { formatSize } from '@/lib/utils'
-import { v4 as uuidv4 } from 'uuid'
-import { SharedLink } from '@/models/SharedLink'
+import { uploadChunk } from './chunk'
+import { finishTransfer, startTransfer } from './transfer'
 
 export const uploadZipBlob = async (
   blob: Blob,
@@ -13,7 +18,7 @@ export const uploadZipBlob = async (
   formData.append('file', blob, fileName.trim())
 
   try {
-    const response = await api.post('/upload', formData, {
+    const response = await api.post('/api/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       },
@@ -26,18 +31,13 @@ export const uploadZipBlob = async (
 }
 
 const uploadWithRetry = async (
-  formData: FormData,
+  chunkRequestDto: ChunkRequestDto,
   retries = 3,
   onUploadProgress?: (progressEvent: AxiosProgressEvent) => void
 ) => {
   for (let attempt = 0; attempt < retries; attempt++) {
     try {
-      const response = await api.post('/upload', formData, {
-        onUploadProgress,
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      })
+      const response = await uploadChunk({ chunkRequestDto, onUploadProgress })
 
       if (response.status === 200) {
         return response.data
@@ -52,52 +52,47 @@ const uploadWithRetry = async (
   throw new Error('Failed to upload file after multiple attempts')
 }
 
-// Chunk size - you can adjust this as needed
-const CHUNK_SIZE = 120 * 1024 * 1024
-
-// Maximum number of concurrent uploads
-const MAX_CONCURRENT_UPLOADS = 4
-
 // Helper to create a chunk upload task
 const createChunkUploadTask = (
-  file: File,
+  file: FileResponseDto,
+  fileData: File,
   chunkIndex: number,
-  totalChunks: number,
-  uploadName: string,
-  email: string,
-  retries: number,
   onUploadProgress?: (progressEvent: AxiosProgressEvent) => void,
   updateMessageCallback?: (message: string) => void
 ) => {
   return async () => {
-    const start = (chunkIndex - 1) * CHUNK_SIZE
-    const end = Math.min(start + CHUNK_SIZE, file.size)
-    const chunk = file.slice(start, end)
+    const start = (chunkIndex - 1) * CONSTANTS.CHUNK_SIZE
+    const end = Math.min(start + CONSTANTS.CHUNK_SIZE, file.fileSize)
+    const chunk = fileData.slice(start, end)
 
-    const formData = new FormData()
-    formData.append('email', email)
-    formData.append('chunked', 'true')
-    formData.append('totalChunks', totalChunks.toString())
-    formData.append('chunkIndex', chunkIndex.toString())
-    formData.append('uploadName', uploadName)
-    formData.append('fileName', file.name)
-    formData.append(
-      'file',
-      chunk,
-      `${file.name}.chunk.${String(chunkIndex).padStart(5, '0')}_of_${String(totalChunks).padStart(5, '0')}`
-    )
+    const chunkRequestDto: ChunkRequestDto = {
+      fileId: file.id,
+      chunkIndex,
+      chunkSize: chunk.size,
+      chunkChecksum: await calculateChecksum(chunk),
+      multipartFile: chunk
+    }
+    const parseResult = chunkSchema.safeParse(chunkRequestDto)
+    if (!parseResult.success) {
+      console.error('Chunk request DTO validation failed:', parseResult.error)
+      throw new Error('Chunk request DTO validation failed')
+    }
 
     if (updateMessageCallback) {
       updateMessageCallback(
-        `Uploading chunk ${chunkIndex}/${totalChunks} for ${file.name} (${formatSize(chunk.size)})`
+        `Uploading chunk ${chunkIndex}/${file.totalChunks} for ${file.fileName} (${formatSize(chunk.size)})`
       )
     }
 
     try {
-      const data = await uploadWithRetry(formData, retries, onUploadProgress)
+      const data = await uploadWithRetry(
+        chunkRequestDto,
+        CONSTANTS.CHUNK_UPLOAD_RETRIES,
+        onUploadProgress
+      )
       return { data, size: chunk.size }
     } catch (error) {
-      console.error(`Chunk upload error for ${file.name} chunk ${chunkIndex}:`, error)
+      console.error(`Chunk upload error for ${file.fileName} chunk ${chunkIndex}:`, error)
       throw error
     }
   }
@@ -140,63 +135,84 @@ async function processQueue<T>(tasks: (() => Promise<T>)[], concurrency: number)
   return results
 }
 
+export interface fileUploadData {
+  file: File
+  uploadName: string
+  fileChunks: number
+}
+
 export const zipUploadFiles = async (
   files: File[],
-  retries = 3,
-  email: string,
   onUploadProgress?: (progressEvent: AxiosProgressEvent) => void,
   updateMessageCallback?: (message: string) => void
 ) => {
-  const uploadName = uuidv4().replace(/[^a-z0-9]/gi, '_') // Generate uploadName once
-  let sharedLink: SharedLink | undefined = undefined
-  let totalUploadedSize = 0
+  const fileChecksums = await calculateChecksums(files)
+  // 1. start transfer
+  const startTransferRequest: StartTransferRequestDto = {
+    startTime: new Date(),
+    files: files.map((file) => ({
+      fileName: file.name,
+      fileType: file.type,
+      fileSize: file.size,
+      fileChecksum: fileChecksums.shift() as string,
+      chunkSize: CONSTANTS.CHUNK_SIZE,
+      totalChunks: Math.ceil(file.size / CONSTANTS.CHUNK_SIZE)
+    }))
+  }
+
+  const result = await startTransfer(startTransferRequest)
 
   // Create all chunk upload tasks across all files
-  const allTasks: (() => Promise<{ data: any; size: number }>)[] = []
+  const taskQueue: (() => Promise<{ data: any; size: number }>)[] = []
 
-  // Build all chunk upload tasks
-  for (const file of files) {
-    const fileSize = file.size
-    const totalChunks = Math.ceil(fileSize / CHUNK_SIZE)
-
-    // Create tasks for each chunk
-    for (let chunkIndex = 1; chunkIndex <= totalChunks; chunkIndex++) {
-      allTasks.push(
-        createChunkUploadTask(
-          file,
-          chunkIndex,
-          totalChunks,
-          uploadName,
-          email,
-          retries,
-          onUploadProgress,
-          updateMessageCallback
-        )
-      )
-    }
+  for (const file of result.data.files) {
+    addUploadChunkTaskToQueue({
+      file,
+      fileData: files.find((f) => f.name === file.fileName) as File,
+      taskQueue,
+      onUploadProgress,
+      updateMessageCallback
+    })
   }
 
   try {
     if (updateMessageCallback) {
       updateMessageCallback(
-        `Starting parallel upload of ${allTasks.length} chunks with max ${MAX_CONCURRENT_UPLOADS} concurrent uploads`
+        `Starting parallel upload of ${taskQueue.length} chunks with max ${CONSTANTS.MAX_CONCURRENT_UPLOADS} concurrent uploads`
       )
     }
 
     // Process all tasks with limited concurrency
-    const results = await processQueue(allTasks, MAX_CONCURRENT_UPLOADS)
+    await processQueue(taskQueue, CONSTANTS.MAX_CONCURRENT_UPLOADS)
 
-    // Update shared link and total uploaded size
-    for (const result of results) {
-      if (result.data !== '') {
-        sharedLink = { ...result.data }
-        totalUploadedSize += result.size
-      }
+    try {
+      return (await finishTransfer(result.data.id)).data
+    } catch (finalizeError) {
+      console.error(`Failed to finalize transfer ${result.data.id}:`, finalizeError)
+      throw new Error(`Transfer finalization failed: ${finalizeError}`)
     }
-
-    return sharedLink
   } catch (error) {
     console.error('Upload failed:', error)
     throw error
+  }
+}
+
+const addUploadChunkTaskToQueue = async ({
+  file,
+  fileData,
+  taskQueue,
+  onUploadProgress,
+  updateMessageCallback
+}: {
+  file: FileResponseDto
+  fileData: File
+  taskQueue: (() => Promise<{ data: any; size: number }>)[]
+  onUploadProgress: (progressEvent: AxiosProgressEvent) => void
+  updateMessageCallback?: (message: string) => void
+}) => {
+  for (let chunkIndex = 1; chunkIndex <= file.totalChunks; chunkIndex++) {
+    taskQueue.push(
+      createChunkUploadTask(file, fileData, chunkIndex, onUploadProgress, updateMessageCallback)
+    )
   }
 }

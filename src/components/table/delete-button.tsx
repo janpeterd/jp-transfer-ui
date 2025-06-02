@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { deleteSharedLink } from "@/api/sharedLinks";
+import { TransferResponseDto } from "@/models/TransferResponseDto";
+import { TableMeta } from "@tanstack/react-table";
 import { Trash } from "lucide-react";
-import { Button } from "../ui/button";
+import { useState } from "react";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,22 +15,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
-import { deleteSharedLink } from "@/api/sharedLinks";
-import { toast } from "sonner";
+import { Button } from "../ui/button";
 
 // New DeleteButton component
 function DeleteButton({
-  gpCode: sharedLinkId,
+  sharedLinkId,
   table,
 }: {
-  gpCode: string;
-  table: {
-    options: {
-      meta?: {
-        reload_data: () => void;
-      };
-    };
-  };
+  sharedLinkId: number;
+  table: TableMeta<TransferResponseDto> | undefined;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -36,7 +32,7 @@ function DeleteButton({
       try {
         await deleteSharedLink(sharedLinkId); // Call the API delete function
 
-        table.options.meta?.reload_data(); // Refresh the data
+        table?.options.meta?.reload_data(); // Refresh the data
         toast(`Successfully deleted this link.`);
       } catch {
         toast.error("Error deleting the link"); // Show an error toast

@@ -24,7 +24,6 @@ declare module '@tanstack/react-table' {
   interface TableMeta<TData> {
     reload_data: unknown
     handleEdit: (row: Row<TData>) => void
-    handleDelete: (row: Row<TData>) => void
     handleSetPassword: (row: Row<TData>) => void
   }
 }
@@ -34,7 +33,6 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   reload_data: unknown
   handleEdit?: (row: Row<TData>) => void
-  handleDelete?: (row: Row<TData>) => void
   handleSetPassword?: (row: Row<TData>) => void
 }
 
@@ -43,7 +41,6 @@ export function DataTable<TData, TValue>({
   data,
   reload_data,
   handleEdit,
-  handleDelete,
   handleSetPassword
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
@@ -64,7 +61,6 @@ export function DataTable<TData, TValue>({
     meta: {
       reload_data,
       handleEdit: handleEdit || (() => { }),
-      handleDelete: handleDelete || (() => { }),
       handleSetPassword: handleSetPassword || (() => { })
     }
   })
@@ -72,7 +68,7 @@ export function DataTable<TData, TValue>({
   return (
     <>
       <div className="flex items-center justify-start gap-2"></div>
-      <div className="w-full rounded-md border">
+      <div className="w-full rounded-md">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

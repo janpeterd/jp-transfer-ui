@@ -1,14 +1,17 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { useAuth } from '@/hooks/useAuth'; // Your custom hook
 import App from '@/App';
-import LogIn from '@/app/login/page';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/')({
-  component: RouteComponent,
+  beforeLoad: () => {
+    const token = localStorage.getItem('token');
+    const isAuthenticated = !!token;
+
+    if (!isAuthenticated) {
+      throw redirect({
+        to: '/login',
+        replace: true,
+      });
+    }
+  },
+  component: App,
 });
-
-function RouteComponent() {
-  const isAuthenticated = useAuth(); // You can use the custom hook here too
-
-  return isAuthenticated ? <App /> : <LogIn />;  // Only render App if authenticated
-}

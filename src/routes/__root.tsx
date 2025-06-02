@@ -1,16 +1,16 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router'
 import BottomGradient from '@/components/BottomGradient'
-import { Toaster } from 'sonner'
-import Providers from '@/providers/Provider'
-import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import Navbar from '@/components/Navbar'
+import Providers from '@/providers/Provider'
+import { createRootRoute, Outlet } from '@tanstack/react-router'
+import { Toaster } from 'sonner'
 
 export const Route = createRootRoute({
   component: () =>
   (
-    <>
+    <div>
       <Providers>
-        <div className="absolute top-0 left-0 p-4 z-10 w-full">
+        <div className="relative p-0 mb-12">
           <Navbar />
         </div>
 
@@ -18,11 +18,11 @@ export const Route = createRootRoute({
           <Outlet />
           <Footer />
         </main>
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 -z-10">
           <BottomGradient />
         </div>
         <Toaster richColors={true} />
       </Providers>
-    </>
+    </div>
   ),
 })

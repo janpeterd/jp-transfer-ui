@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Reddit+Sans+Condensed:wght@200..900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,8 +7,6 @@
 :root {
   --primary: 27.29 100% 50%;
   --secondary: 236.57 52.24% 13.14%;
-  --border: var(--secondary);
-  --input: var(--secondary);
   --destructive: 0 100% 50%;
   --destructive-foreground: 0 0% 100%;
   --radius: 0.5rem;
@@ -20,6 +19,8 @@
   --danger-light: 0 78% 90%;
   --background: 0 0 0;
   --muted-foreground: 0 0% 75% / 0.75;
+  --border: var(--muted-foreground);
+  --input: var(--muted-foreground);
 }
 
 @layer base {
@@ -35,7 +36,7 @@
 }
 
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Reddit Sans Condensed', sans-serif;
   color: white;
 }
 
@@ -43,5 +44,5 @@ h1,
 h2,
 h3,
 h4 {
-  font-family: 'Roboto Condensed', sans-serif;
+  font-family: 'Reddit Sans Condensed', sans-serif;
 }

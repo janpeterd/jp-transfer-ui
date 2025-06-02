@@ -1,9 +1,9 @@
-import { User } from '@/models/User'
+import { User, UserResponseDto } from '@/models/User'
 import api from './apiInstance'
 
 export const createUser = async (user: Partial<User>) => {
   try {
-    const response = await api.post('/users', {
+    const response = await api.post('/api/user', {
       ...user
     })
     return response.data
@@ -14,10 +14,7 @@ export const createUser = async (user: Partial<User>) => {
 
 export const getUsers = async () => {
   try {
-    const { data } = await api.get<{
-      _embedded: { users: User[] }
-    }>(`/users`, {})
-    return data._embedded.users
+    return await api.get<UserResponseDto[]>(`/api/user`, {})
   } catch (error) {
     throw new Error(`Failed to fetch users: ${error}`)
   }
@@ -25,7 +22,7 @@ export const getUsers = async () => {
 
 export const deleteUser = async (userId: number | string) => {
   try {
-    const response = await api.delete(`/users/${userId}`)
+    const response = await api.delete(`/api/user/${userId}`)
     return response
   } catch (error) {
     throw new Error(`Failed to delete user: ${error}`)
@@ -34,22 +31,16 @@ export const deleteUser = async (userId: number | string) => {
 
 export const updateUser = async (userId: number, user: Partial<User>) => {
   try {
-    await api.put(`/users/${userId}`, user)
+    await api.put(`/api/user/${userId}`, user)
   } catch (error) {
     throw new Error(`Failed to update user: ${error}`)
   }
 }
 
-// patch user with json operations spring data rest
-
-export const patchUser = async (userId: number, user: Partial<User>) => {
+export const getCurrentUser = async () => {
   try {
-    await api.patch(`/users/${userId}`, [
-      { op: 'replace', path: '/username', value: user.username },
-      { op: 'replace', path: '/email', value: user.email },
-      { op: 'replace', path: '/role', value: user.role }
-    ])
+    return await api.get<UserResponseDto>(`/api/user/current`)
   } catch (error) {
-    throw new Error(`Failed to update user: ${error}`)
+    throw new Error(`Failed to fetch current users: ${error}`)
   }
 }
