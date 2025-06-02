@@ -14,7 +14,7 @@ export const Route = createRootRoute({
           <Navbar />
         </div>
 
-        <main className="dark relative flex flex-col items-center justify-center p-4">
+        <main className="dark relative flex flex-col items-center justify-center p-4 my-12">
           <Outlet />
           <Footer />
         </main>

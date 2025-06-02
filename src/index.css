@@ -35,6 +35,11 @@
   }
 }
 
+html,
+body {
+  min-height: 100vh;
+}
+
 body {
   font-family: 'Reddit Sans Condensed', sans-serif;
   color: white;
