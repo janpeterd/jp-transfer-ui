@@ -56,14 +56,17 @@ export const calculateChecksum = async (
   const hasher: IHasher = await createSHA1()
   hasher.init()
 
-  // Create a ReadableStream from the File object
   const stream = data.stream()
+  const reader = stream.getReader()
+
   let bytesProcessed = 0
+  while (true) {
+    const { done, value: chunk } = await reader.read()
+    if (done) {
+      break
+    }
 
-  for await (const chunk of stream) {
     hasher.update(chunk)
-
-    // For progress tracking
     if (onProgress) {
       bytesProcessed += chunk.length
       onProgress(bytesProcessed / data.size)
