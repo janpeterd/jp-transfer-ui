@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from 'clsx'
+import { createSHA1, IHasher } from 'hash-wasm'
 import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
@@ -48,11 +49,28 @@ export const formatDateToBackendISO = (date: Date) => {
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
 }
 
-export const calculateChecksum = async (data: Blob | File) => {
-  const buffer = await data.arrayBuffer()
-  const hashBuffer = await crypto.subtle.digest('SHA-1', buffer)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+export const calculateChecksum = async (
+  data: File | Blob,
+  onProgress?: (progress: number) => void
+): Promise<string> => {
+  const hasher: IHasher = await createSHA1()
+  hasher.init()
+
+  // Create a ReadableStream from the File object
+  const stream = data.stream()
+  let bytesProcessed = 0
+
+  for await (const chunk of stream) {
+    hasher.update(chunk)
+
+    // For progress tracking
+    if (onProgress) {
+      bytesProcessed += chunk.length
+      onProgress(bytesProcessed / data.size)
+    }
+  }
+
+  return hasher.digest('hex')
 }
 
 export const calculateChecksums = async (files: File[]) => {
