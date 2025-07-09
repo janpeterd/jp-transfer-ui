@@ -20,11 +20,12 @@ export default function TransferColumns({
   reloader: () => void,
 }) {
 
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [rowToDelete, setRowToDelete] = useState<Row<TransferResponseDto> | null>(null);
   const queryClient = useQueryClient();
-  const deleteSingleSharedLink = async (row: Row<TransferResponseDto>) => {
-    if (row.original.id !== undefined) {
-      await deleteTransfer(row.original.id);
+  const deleteSingleSharedLink = async () => {
+    if (!rowToDelete) return;
+    if (rowToDelete.original.id !== undefined) {
+      await deleteTransfer(rowToDelete.original.id);
       queryClient.invalidateQueries({ queryKey: ['userProfileTransfers'] });
       queryClient.invalidateQueries({ queryKey: ['systemStorageInfoProfile'] });
       queryClient.invalidateQueries({ queryKey: ['userStorageInfoProfile'] });
@@ -32,7 +33,7 @@ export default function TransferColumns({
     } else {
       toast.error('Failed to transfer: ID is undefined.');
     }
-    setOpenDeleteDialog(false);
+    setRowToDelete(null);
   };
 
   const columns: ColumnDef<TransferResponseDto>[] = [
@@ -83,37 +84,41 @@ export default function TransferColumns({
       ),
       cell: ({ row }) => (
         <div className="flex justify-center items-center gap-4">
-          <AlertDialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-            <AlertDialogContent className="bg-neutral-800 border-neutral-700 text-neutral-100">
-              <AlertDialogHeader>
-                <AlertDialogTitle className="text-red-400">Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription className="text-neutral-300">
-                  This action cannot be undone. This will permanently delete the selected shared link.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel className="hover:bg-neutral-700 focus:ring-neutral-600">Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    return row && deleteSingleSharedLink(row)
-                  }}
-                  className="bg-red-600 hover:bg-red-700 text-white focus:ring-red-500"
-                >
-                  Yes, Delete Link
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-          <Button variant={"destructive"} onClick={() => setOpenDeleteDialog(true)}>Delete</Button>
+          <Button variant={"destructive"} onClick={() => setRowToDelete(row)}>Delete</Button>
         </div>
       ),
     }
   ];
   return (
-    <DataTable
-      data={data}
-      columns={columns}
-      reload_data={reloader}
-    />
+    <>
+
+      <DataTable
+        data={data}
+        columns={columns}
+        reload_data={reloader}
+      />
+      <AlertDialog
+        open={!!rowToDelete}
+        onOpenChange={(isOpen) => !isOpen && setRowToDelete(null)}
+      >
+        <AlertDialogContent className="bg-neutral-800 border-neutral-700 text-neutral-100">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-red-400">Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription className="text-neutral-300">
+              This action cannot be undone. This will permanently delete the selected shared link.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="hover:bg-neutral-700 focus:ring-neutral-600">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={deleteSingleSharedLink}
+              className="bg-red-600 hover:bg-red-700 text-white focus:ring-red-500"
+            >
+              Yes, Delete Link
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 }
